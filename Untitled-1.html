@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Swap</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Skill Swap</h1>
+      <nav>
+        <ul>
+          <li><a href="#profile">Profile</a></li>
+          <li><a href="#jobs">Jobs</a></li>
+          <li><a href="#applications">Applications</a></li>
+        </ul>
+      </nav>
+    </header>
+    <section id="profile" class="hidden">
+      <h2>Create Profile</h2>
+      <form id="profile-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required>
+        <label for="skills">Skills:</label>
+        <input type="text" id="skills" required>
+        <button type="submit">Save Profile</button>
+      </form>
+      <p id="profile-info"></p>
+    </section>
+    <section id="jobs" class="hidden">
+      <h2>Available Jobs</h2>
+      <div id="job-list"></div>
+    </section>
+    <section id="applications" class="hidden">
+      <h2>My Applications</h2>
+      <div id="application-list"></div>
+    </section>
+    <div id="notifications" class="hidden">
+      <p>Notification: <span id="notification-text"></span></p>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .container {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    max-width: 600px;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  nav ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  nav ul li {
+    display: inline;
+    margin-right: 15px;
+  }
+  
+  nav ul li a {
+    text-decoration: none;
+    color: #3498db;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  form {
+    margin-top: 10px;
+  }
+  
+  form label {
+    display: block;
+    margin-top: 10px;
+  }
+  
+  form input {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('nav ul li a').forEach(link => {
+      link.addEventListener('click', event => {
+        event.preventDefault();
+        document.querySelectorAll('section').forEach(section => {
+          section.classList.add('hidden');
+        });
+        const target = document.querySelector(link.getAttribute('href'));
+        target.classList.remove('hidden');
+      });
+    });
+  
+    document.getElementById('profile-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const username = document.getElementById('username').value;
+      const skills = document.getElementById('skills').value;
+      document.getElementById('profile-info').innerText = `Username: ${username}, Skills: ${skills}`;
+      localStorage.setItem('profile', JSON.stringify({ username, skills }));
+      showNotification('Profile saved!');
+    });
+  
+    const jobList = document.getElementById('job-list');
+    const jobs = [
+      { title: 'Graphic Designer', skills: 'Design, Photoshop', pay: 'Fixed Pay: $500' },
+      { title: 'Web Developer', skills: 'HTML, CSS, JS', pay: 'Fixed Pay: $800' }
+    ];
+    jobs.forEach(job => {
+      const jobItem = document.createElement('div');
+      jobItem.innerHTML = `<h3>${job.title}</h3><p>Skills: ${job.skills}</p><p>${job.pay}</p><button onclick="applyForJob('${job.title}')">Apply</button>`;
+      jobList.appendChild(jobItem);
+    });
+  
+    const savedProfile = JSON.parse(localStorage.getItem('profile'));
+    if (savedProfile) {
+      document.getElementById('profile-info').innerText = `Username: ${savedProfile.username}, Skills: ${savedProfile.skills}`;
+    }
+  
+    const showNotification = (message) => {
+      const notification = document.getElementById('notifications');
+      document.getElementById('notification-text').innerText = message;
+      notification.classList.remove('hidden');
+      setTimeout(() => {
+        notification.classList.add('hidden');
+      }, 3000);
+    };
+  
+    const applyForJob = (jobTitle) => {
+      const applicationsList = document.getElementById('application-list');
+      const applicationItem = document.createElement('div');
+      applicationItem.innerText = `Applied for: ${jobTitle}`;
+      applicationsList.appendChild(applicationItem);
+      showNotification(`You applied for ${jobTitle}`);
+    };
+  
+    window.applyForJob = applyForJob;
+  });
+    
